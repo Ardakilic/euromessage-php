@@ -1,0 +1,13 @@
+# Composer downloads
+vendor/
+composer.lock
+
+# OS X
+**/.DS_Store
+# PHP-CS-Fixer
+.php_cs.cache
+# ignore IDE/hidden/OS cache files
+.*
+*~
+# keep some hiddens
+!/.gitignore

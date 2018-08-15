@@ -1,0 +1,22 @@
+{
+  "name": "ardakilic/euromessage-php",
+  "description": "Euromessage PHP Client",
+  "type": "library",
+  "require": {
+    "guzzlehttp/guzzle": "^6.3",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Euromessage\\": "src/"
+    }
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Arda Kilicdagi",
+      "email": "arda@kilicdagi.com"
+    }
+  ],
+  "minimum-stability": "stable"
+}
