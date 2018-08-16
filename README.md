@@ -1,7 +1,7 @@
 Euromessage-PHP
 --------
 
-This PHP library helps you to create users, add them to specific lists or unsubscribe them to [Euromessage](https://www.euromsg.com/).
+This PHP library helps you to create memberDatas, add them to specific lists or unsubscribe them to [Euromessage](https://www.euromsg.com/).
 
 This client uses the Euromessage's REST API, and you can set the endpoints if you want from configuration.
 
@@ -12,7 +12,7 @@ Requirements
 
 Example Configuration
 --------
-```
+```php
 <?php
 return [
     'username' => 'euromessage_api_username',
@@ -21,8 +21,9 @@ return [
     'endpoints' => [
         'base_uri' => 'http://api.relateddigital.com/resta/api/',
         'get_token' => 'auth/login',
-        'create_member' => 'Member/InsertMemberDemography',
-        'subscribe' => 'Member/AddToSendLists',
+        'create_update_member' => 'Member/InsertMemberDemography',
+        'add_to_list' => 'Member/AddToSendLists',
+        'remove_from_list' => 'Member/RemoveFromSendLists',
     ]
 ];
 ```
@@ -36,7 +37,7 @@ Examples
 <?php
 $config = require('./config.php'); // or from env, etc. Should respect the example configuration
 $euromessage = new Euromessage\Client($config);
-$userData = [
+$memberData = [
     'key' => 'KeyID', // Unique identifier for the service
     'value' => 'Value',
     'demographic' => [ // Depends on your account's configuration
@@ -47,35 +48,78 @@ $userData = [
         // ....
     ],
 ];
-// Whether the user will be force updated? The parameter is true as default, no need to set.
+// Whether the member will be subscribed and force updated? These parameters are true as default, and optional. No need to set every yime.
+$subscribeEmail = true;
+$subscribeGSM = true;
 $forceUpdate = true;
 try {
-    $response = $euromessage->createMember($userData, $forceUpdate);
+    $response = $euromessage->createMember($memberData, $subscribeEmail, $subscribeGSM, $forceUpdate);
 } catch (Exception $e) {
+    if($e instanceof \GuzzleHttp\Exception\RequestException) {
+        // Guzzle request exception
+    } else {
+        // Class's exception, wrong credentials etc.
+    }
     // The code and message are according to the Euromessage API
     var_dump($e->getCode(), $e->getMessage(), $e->getTrace());
 }
 ```
 
-## Adding the member to a list
+## Adding a member to list(s)
 
 ```php
 <?php
 $config = require('./config.php'); // or from env, etc. Should respect the example configuration
 $euromessage = new Euromessage\Client($config);
-$userData = [
+$memberData = [
     'key' => 'KeyID', // Unique identifier for the service
     'value' => 'Value',
     'lists' => [
         [
             'name' => 'List Name 1',
-            'Group' => 'Group Name', // "Genel" may be set as default
+            'group' => 'Group Name', // "Genel" may be set as default
         ],
     ],
 ];
 try {
-    $response = $euromessage->createMember($userData);
+    $response = $euromessage->addMemberToLists($memberData);
 } catch (Exception $e) {
+    if($e instanceof \GuzzleHttp\Exception\RequestException) {
+        // Guzzle request exception
+    } else {
+        // Class's exception, wrong credentials etc.
+    }
+    // The code and message are according to the Euromessage API
+    var_dump($e->getCode(), $e->getMessage(), $e->getTrace());
+}
+```
+
+## Update Notification Preferences of a Member
+
+This method sets the member's preferences on his/her demographic data, so this applies to all lists, according to Euromessage's documentation.
+
+```php
+<?php
+$config = require('./config.php'); // or from env, etc. Should respect the example configuration
+$euromessage = new Euromessage\Client($config);
+$memberData = [
+    'key' => 'KeyID', // Unique identifier for the service
+    'value' => 'Value',
+];
+// When these parameters are set to true, memberData wants to contact with the channels
+// If these parameters are set to false, memberData wants to unsubscribe from Email or GSM
+$subscribeEmail = true;
+$subscribeGSM = true;
+// Optional parameter for force updating
+$forceUpdate = true;
+try {
+    $response = $euromessage->updateNotificationPreferences($memberData, $subscribeEmail, $subscribeGSM, $forceUpdate);
+} catch (Exception $e) {
+    if($e instanceof \GuzzleHttp\Exception\RequestException) {
+        // Guzzle request exception
+    } else {
+        // Class's exception, wrong credentials etc.
+    }
     // The code and message are according to the Euromessage API
     var_dump($e->getCode(), $e->getMessage(), $e->getTrace());
 }

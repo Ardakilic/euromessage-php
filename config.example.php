@@ -15,7 +15,8 @@ return [
     'endpoints' => [
         'base_uri' => 'http://api.relateddigital.com/resta/api/',
         'get_token' => 'auth/login',
-        'create_member' => 'Member/InsertMemberDemography',
-        'subscribe' => 'Member/AddToSendLists',
+        'create_update_member' => 'Member/InsertMemberDemography',
+        'add_to_list' => 'Member/AddToSendLists',
+        'remove_from_list' => 'Member/RemoveFromSendLists',
     ]
 ];
