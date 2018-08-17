@@ -1,7 +1,7 @@
 Euromessage-PHP
 --------
 
-This PHP library helps you to create memberDatas, add them to specific lists or unsubscribe them to [Euromessage](https://www.euromsg.com/).
+This PHP library helps you to create member data, add them to specific lists or delete them, and update preferences of members on [Euromessage](https://www.euromsg.com/).
 
 This client uses the Euromessage's REST API, and you can set the endpoints if you want from configuration.
 
@@ -85,6 +85,35 @@ $memberData = [
 ];
 try {
     $response = $euromessage->addMemberToLists($memberData);
+} catch (Exception $e) {
+    if($e instanceof \GuzzleHttp\Exception\RequestException) {
+        // Guzzle request exception
+    } else {
+        // Class's exception, wrong credentials etc.
+    }
+    // The code and message are according to the Euromessage API
+    var_dump($e->getCode(), $e->getMessage(), $e->getTrace());
+}
+```
+
+## Removing a member from list(s)
+
+```php
+<?php
+$config = require('./config.php'); // or from env, etc. Should respect the example configuration
+$euromessage = new Euromessage\Client($config);
+$memberData = [
+    'key' => 'KEY_ID', // Unique identifier for the service
+    'value' => 'Value',
+    'lists' => [
+        [
+            'name' => 'List Name 1',
+            'group' => 'Group Name', // "Genel" may be set as default
+        ],
+    ],
+];
+try {
+    $response = $euromessage->removeMemberFromLists($memberData);
 } catch (Exception $e) {
     if($e instanceof \GuzzleHttp\Exception\RequestException) {
         // Guzzle request exception
