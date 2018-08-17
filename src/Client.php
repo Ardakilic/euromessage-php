@@ -26,11 +26,8 @@ class Client
      */
     public function __construct($config)
     {
-        if (!is_array($config)) {
-            throw new Exception('Configuration parameter must be an array');
-        }
         $this->config = $config;
-        $this->client = new Guzzle(['base_uri' => $this->config['base_uri']]);
+        $this->client = new Guzzle(['base_uri' => $this->config['endpoints']['base_uri']]);
     }
 
     /**

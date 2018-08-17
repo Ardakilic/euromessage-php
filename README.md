@@ -28,6 +28,8 @@ return [
 ];
 ```
 
+The configuration parameter holds the `endpoints` section, because during my integration, the company provided me a different api endpoint (base_uri).
+
 Examples
 --------
 
@@ -38,7 +40,7 @@ Examples
 $config = require('./config.php'); // or from env, etc. Should respect the example configuration
 $euromessage = new Euromessage\Client($config);
 $memberData = [
-    'key' => 'KeyID', // Unique identifier for the service
+    'key' => 'KEY_ID', // Unique identifier for the service
     'value' => 'Value',
     'demographic' => [ // Depends on your account's configuration
         'E-Posta' => 'john@doe.com',
@@ -72,7 +74,7 @@ try {
 $config = require('./config.php'); // or from env, etc. Should respect the example configuration
 $euromessage = new Euromessage\Client($config);
 $memberData = [
-    'key' => 'KeyID', // Unique identifier for the service
+    'key' => 'KEY_ID', // Unique identifier for the service
     'value' => 'Value',
     'lists' => [
         [
@@ -103,7 +105,7 @@ This method sets the member's preferences on his/her demographic data, so this a
 $config = require('./config.php'); // or from env, etc. Should respect the example configuration
 $euromessage = new Euromessage\Client($config);
 $memberData = [
-    'key' => 'KeyID', // Unique identifier for the service
+    'key' => 'KEY_ID', // Unique identifier for the service
     'value' => 'Value',
 ];
 // When these parameters are set to true, memberData wants to contact with the channels
@@ -127,7 +129,7 @@ try {
 
 TODOs
 --------
-There's not much todo required for my personal needs, however any pull requests will be considered and appreciated. 
+There's not much todo required for my personal needs, however any pull requests will be considered and appreciated.
 
 License
 --------
