@@ -10,6 +10,15 @@ Requirements
 * Not an ancient PHP version
 * ext-json
 
+Installation
+--------
+
+You can simply install via composer package manager:
+
+```bash
+composer require ardakilic/euromessage-php
+```
+
 Example Configuration
 --------
 ```php

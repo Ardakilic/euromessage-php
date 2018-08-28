@@ -22,7 +22,6 @@ class Client
     /**
      * Client constructor.
      * @param array $config the configuration array
-     * @throws Exception the exception from the code block that checks the type of the $config variable
      */
     public function __construct($config)
     {
