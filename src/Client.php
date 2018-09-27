@@ -4,6 +4,7 @@
  * Euromessage Client for PHP
  * @license MIT
  * @author Arda Kılıçdağı <arda@kilicdagi.com>
+ * @link https://github.com/ardakilic/euromessage-php
  * @link https://arda.pw
  *
  */
@@ -30,7 +31,7 @@ class Client
     }
 
     /**
-     * Creates a new member to Euromessage Service
+     * Creates a new member to Euromessage Member Service
      * @param array $memberData the data of the member
      * @param bool $subscribeEmail Whether the member will be automatically subscribed to email lists
      * @param bool $subscribeGSM Whether the member will be automatically subscribed to GSM lists
@@ -42,7 +43,7 @@ class Client
     {
         $token = $this->getToken();
 
-        // The Headers and body that will be sent to get the token
+        // The headers and the body that will be sent
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => $token,
@@ -77,8 +78,8 @@ class Client
         $body['DemographicData'] = array_values($demographicList);
 
         $request = $this->client->post($this->config['endpoints']['create_update_member'], [
-            \GuzzleHttp\RequestOptions::JSON => $body,
             \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
         ]);
 
         $response = json_decode($request->getBody()->getContents(), true);
@@ -89,6 +90,71 @@ class Client
         }
         throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
     }
+
+    /**
+     * Creates a new member to Euromessage Data Warehouse Service
+     * @param array $memberData the data of the member
+     * @param bool $subscribeEmail Whether the member will be automatically subscribed to email lists
+     * @param bool $subscribeGSM Whether the member will be automatically subscribed to GSM lists
+     * @param bool $forceUpdate Whether the data will be force updated or not
+     * @param bool $insertEmptyValueForNonDemographicColumns Whether the non demographic data be filled with blank string or not
+     * @return string the ID of the created member
+     * @throws Exception the exception from the request or the Guzzle Client
+     */
+    public function createMemberAtWarehouse($memberData, $subscribeEmail = true, $subscribeGSM = true, $forceUpdate = true, $insertEmptyValueForNonDemographicColumns = true)
+    {
+        $token = $this->getToken();
+
+        // The headers and the body that will be sent
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $token,
+        ];
+
+        $body = [
+            'DwTableName' => $memberData['warehouseTableName'],
+            'Key' => $memberData['key'],
+            'Value' => $memberData['value'],
+            'ForceUpdate' => $forceUpdate,
+            'DemographicData' => [],
+            'InsertEmptyValueForNonDemographicColumns' => $insertEmptyValueForNonDemographicColumns,
+        ];
+
+        $dataCounter = 0;
+        $demographicList = [];
+        foreach ($memberData['demographic'] as $key => $value) {
+            $demographicList[$dataCounter]['Key'] = $key;
+            $demographicList[$dataCounter]['Value'] = $value;
+            $dataCounter++;
+        }
+
+        // Make sure to add permits
+        if ($subscribeEmail === true) {
+            $demographicList[$dataCounter]['Key'] = 'EMAIL_PERMIT';
+            $demographicList[$dataCounter]['Value'] = 'Y';
+            $dataCounter++;
+        }
+        if ($subscribeGSM === true) {
+            $demographicList[$dataCounter]['Key'] = 'GSM_PERMIT';
+            $demographicList[$dataCounter]['Value'] = 'Y';
+        }
+
+        $body['DemographicData'] = array_values($demographicList);
+
+        $request = $this->client->post($this->config['endpoints']['create_update_member_data_warehouse'], [
+            \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
+        ]);
+
+        $response = json_decode($request->getBody()->getContents(), true);
+        if ($request->getStatusCode() === 200) {
+            if ($response['Success'] === true) {
+                return $response['MemberId'];
+            }
+        }
+        throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
+    }
+
 
     /**
      * Adds a created member to specific list(s)
@@ -103,7 +169,7 @@ class Client
     {
         $token = $this->getToken();
 
-        // The Headers and body that will be sent to get the token
+        // The headers and the body that will be sent
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => $token,
@@ -124,8 +190,8 @@ class Client
         $body['SendLists'] = array_values($lists);
 
         $request = $this->client->post($this->config['endpoints']['add_to_list'], [
-            \GuzzleHttp\RequestOptions::JSON => $body,
             \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
         ]);
 
         $response = json_decode($request->getBody()->getContents(), true);
@@ -147,7 +213,7 @@ class Client
     {
         $token = $this->getToken();
 
-        // The Headers and body that will be sent to get the token
+        // The headers and the body that will be sent
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => $token,
@@ -172,8 +238,8 @@ class Client
         // Support department told me that it should be POST request for updating
         // ¯\_(ツ)_/¯
         $request = $this->client->post($this->config['endpoints']['remove_from_list'], [
-            \GuzzleHttp\RequestOptions::JSON => $body,
             \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
         ]);
 
         $response = json_decode($request->getBody()->getContents(), true);
@@ -186,19 +252,18 @@ class Client
     }
 
     /**
-     * Updates notification preferences of a member
+     * Updates notification preferences of a member from Member Service
      * @param array $memberData identifier data of the member
      * @param bool $subscribeEmail The value to set email subscription preference. If true, (s)he will be notified
      * @param bool $subscribeGsm The value to set GSM subscription preference. If true, (s)he will be notified
-     * @param bool $forceUpdate Whether the data will be force updated or not
      * @return string the ID of the created member
      * @throws Exception the exception from the request or the Guzzle Client
      */
-    public function updateNotificationPreferences($memberData, $subscribeEmail = true, $subscribeGsm = true, $forceUpdate = true)
+    public function updateNotificationPreferences($memberData, $subscribeEmail = true, $subscribeGsm = true)
     {
         $token = $this->getToken();
 
-        // The Headers and body that will be sent to get the token
+        // The headers and the body that will be sent
         $headers = [
             'Content-Type' => 'application/json',
             'Authorization' => $token,
@@ -207,7 +272,7 @@ class Client
         $body = [
             'Key' => $memberData['key'],
             'Value' => $memberData['value'],
-            'ForceUpdate' => $forceUpdate,
+            'ForceUpdate' => true,
             'DemographicData' => [],
         ];
 
@@ -222,8 +287,8 @@ class Client
         $body['DemographicData'] = array_values($demographicList);
 
         $request = $this->client->post($this->config['endpoints']['create_update_member'], [
-            \GuzzleHttp\RequestOptions::JSON => $body,
             \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
         ]);
 
         $response = json_decode($request->getBody()->getContents(), true);
@@ -236,13 +301,189 @@ class Client
     }
 
     /**
+     * Updates notification preferences of a member from Warehouse
+     * @param array $memberData identifier data of the member
+     * @param bool $subscribeEmail The value to set email subscription preference. If true, (s)he will be notified
+     * @param bool $subscribeGsm The value to set GSM subscription preference. If true, (s)he will be notified
+     * @param bool $insertEmptyValueForNonDemographicColumns Whether the non demographic data be filled with blank string or not
+     * @return string the ID of the created member
+     * @throws Exception the exception from the request or the Guzzle Client
+     */
+    public function updateNotificationPreferencesAtWarehouse($memberData, $subscribeEmail = true, $subscribeGsm = true, $insertEmptyValueForNonDemographicColumns = false)
+    {
+        $token = $this->getToken();
+
+        // The headers and the body that will be sent
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $token,
+        ];
+
+        $body = [
+            'DwTableName' => $memberData['warehouseTableName'],
+            'Key' => $memberData['key'],
+            'Value' => $memberData['value'],
+            'ForceUpdate' => true,
+            'DemographicData' => [],
+            'InsertEmptyValueForNonDemographicColumns' => $insertEmptyValueForNonDemographicColumns,
+        ];
+
+        $dataCounter = 0;
+        $demographicList = [];
+        $demographicList[$dataCounter]['Key'] = 'EMAIL_PERMIT';
+        $demographicList[$dataCounter]['Value'] = $subscribeEmail === true ? 'Y' : 'N';
+        $dataCounter++;
+        $demographicList[$dataCounter]['Key'] = 'GSM_PERMIT';
+        $demographicList[$dataCounter]['Value'] = $subscribeGsm === true ? 'Y' : 'N';
+
+        $body['DemographicData'] = array_values($demographicList);
+
+        $request = $this->client->post($this->config['endpoints']['create_update_member_data_warehouse'], [
+            \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
+        ]);
+
+        $response = json_decode($request->getBody()->getContents(), true);
+        if ($request->getStatusCode() === 200) {
+            if ($response['Success'] === true) {
+                return $response['MemberId'];
+            }
+        }
+        throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
+    }
+
+    /**
+     * Updates notification preferences of a member from Data Warehouse Service
+     * @param array $memberData identifier data of the member
+     * @param bool $subscribeEmail The value to set email subscription preference. If true, (s)he will be notified
+     * @param bool $subscribeGsm The value to set GSM subscription preference. If true, (s)he will be notified
+     * @return string the ID of the created member
+     * @throws Exception the exception from the request or the Guzzle Client
+     */
+    public function updateNotificationPreferencesAtDataWarehouse($memberData, $subscribeEmail = true, $subscribeGsm = true)
+    {
+        $token = $this->getToken();
+
+        // The headers and the body that will be sent
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $token,
+        ];
+
+        $body = [
+            'DwTableName' => $memberData['warehouseTableName'],
+            'Key' => $memberData['key'],
+            'Value' => $memberData['value'],
+            'ForceUpdate' => true,
+            'DemographicData' => [],
+        ];
+
+        $dataCounter = 0;
+        $demographicList = [];
+        $demographicList[$dataCounter]['Key'] = 'EMAIL_PERMIT';
+        $demographicList[$dataCounter]['Value'] = $subscribeEmail === true ? 'Y' : 'N';
+        $dataCounter++;
+        $demographicList[$dataCounter]['Key'] = 'GSM_PERMIT';
+        $demographicList[$dataCounter]['Value'] = $subscribeGsm === true ? 'Y' : 'N';
+
+        $body['DemographicData'] = array_values($demographicList);
+
+        $request = $this->client->post($this->config['endpoints']['create_update_member_data_warehouse'], [
+            \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::JSON => $body,
+        ]);
+
+        $response = json_decode($request->getBody()->getContents(), true);
+        if ($request->getStatusCode() === 200) {
+            if ($response['Success'] === true) {
+                return $response['MemberId'];
+            }
+        }
+        throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
+    }
+
+    /**
+     * Gets the member's information from Euromessage Member Service
+     * @param array $memberData identifier data of the member
+     * @return array the Demographic data of the created member, including member ID
+     * @throws Exception the exception from the request or the Guzzle Client
+     */
+    public function queryMemberDemography($memberData)
+    {
+        $token = $this->getToken();
+
+        // The Headers and the body that will be sent
+        $headers = [
+            // 'Content-Type' => 'application/json',
+            'Authorization' => $token,
+        ];
+
+        $query = [
+            'Key' => $memberData['key'],
+            'Value' => $memberData['value'],
+        ];
+
+        $request = $this->client->get($this->config['endpoints']['get_demographic_data'], [
+            \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::QUERY => $query,
+        ]);
+
+        $response = json_decode($request->getBody()->getContents(), true);
+        if ($request->getStatusCode() === 200) {
+            if ($response['Success'] === true) {
+                return $response['DemographicData'];
+            }
+        }
+        throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
+    }
+
+    /**
+     * Gets the member's information from Euromessage Data Warehouse Service
+     * @param array $memberData identifier data of the member
+     * @return array the Demographic data of the created member, including member ID
+     * @throws Exception the exception from the request or the Guzzle Client
+     */
+    public function queryMemberDemographyFromDataWarehouse($memberData)
+    {
+        $token = $this->getToken();
+
+        // The Headers and the body that will be sent
+        $headers = [
+            // 'Content-Type' => 'application/json',
+            'Authorization' => $token,
+        ];
+
+        $body = [
+            'DwTableName' => $memberData['warehouseTableName'],
+            'KeyColumn' => $memberData['key'],
+            'Values' => $memberData['values'],
+            'PageNumber' => 1,
+            'PageSize' => 1000000000000,
+
+        ];
+
+        $request = $this->client->get($this->config['endpoints']['get_demographic_data_warehouse'], [
+            \GuzzleHttp\RequestOptions::HEADERS => $headers,
+            \GuzzleHttp\RequestOptions::BODY => $body,
+        ]);
+
+        $response = json_decode($request->getBody()->getContents(), true);
+        if ($request->getStatusCode() === 200) {
+            if ($response['Success'] === true) {
+                return $response['Table'];
+            }
+        }
+        throw new Exception($response['errors'][0]['Message'], $response['errors'][0]['Code']);
+    }
+
+    /**
      * Gets the token to make requests
      * @return string the token to make further requests
      * @throws Exception the exception from the request or Guzzle Client
      */
     private function getToken()
     {
-        // The Headers and body that will be sent to get the token
+        // The headers and body that will be sent to get the token
         $headers = [
             'Content-Type' => 'application/json',
         ];
