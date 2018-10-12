@@ -13,7 +13,7 @@ return [
     'password' => 'euromessage_api_password',
 
     'endpoints' => [
-        'base_uri' => 'http://api.relateddigital.com/resta/api/',
+        'base_uri' => 'https://api.relateddigital.com/resta/api/',
         'get_token' => 'auth/login',
         'create_update_member' => 'Member/InsertMemberDemography',
         'create_update_member_data_warehouse' => 'Datawarehouse/InsertUpdateRowInDwTable',

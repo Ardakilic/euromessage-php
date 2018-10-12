@@ -21,7 +21,7 @@ composer require ardakilic/euromessage-php
 Example Configuration
 --------
 
-Please refer to [config.example.php](config.example.php).
+Please refer to [config.example.php](./config.example.php).
 
 The configuration parameter holds the `endpoints` section, because during my integration, the company provided me a different api endpoint (base_uri).
 
@@ -274,7 +274,7 @@ try {
 
 TODOs
 --------
-There's not much todo required for my personal needs, however any pull requests will be considered and appreciated.
+There's not much todo required for my personal needs, however, any pull requests will be considered and appreciated.
 
 Changelog
 --------

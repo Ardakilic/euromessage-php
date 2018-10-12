@@ -459,7 +459,6 @@ class Client
             'Values' => $memberData['values'],
             'PageNumber' => 1,
             'PageSize' => 1000000000000,
-
         ];
 
         $request = $this->client->get($this->config['endpoints']['get_demographic_data_warehouse'], [
