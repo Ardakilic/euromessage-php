@@ -272,12 +272,40 @@ try {
 }
 ```
 
+## Setting a whole new configuration on runtime
+
+```php 
+<?php
+$config = require('./config.php'); // or from env, etc. Should respect the example configuration
+$euromessage = new Euromessage\Client($config);
+$newConfig = require('./config.new.php');
+$euromessage->setConfig($newConfig);
+// .. Do the rest
+```
+
+## Setting some new configuration values on runtime
+
+```php 
+<?php
+$config = require('./config.php'); // or from env, etc. Should respect the example configuration
+$euromessage = new Euromessage\Client($config);
+$newConfig = [
+    'username' => 'newUsername',
+    'password' => 'newPassword',
+];
+$euromessage->addConfig($newConfig);
+// .. Do the rest
+```
+
 TODOs
 --------
 There's not much todo required for my personal needs, however, any pull requests will be considered and appreciated.
 
 Changelog
 --------
+
+### 0.1.1
+* `setConfig` and `addConfig` methods added to change configuration on runtime, which can also be chained.
 
 ### 0.1.0
 

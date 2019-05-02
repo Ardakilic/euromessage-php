@@ -507,4 +507,24 @@ class Client
         //
         //};
     }
+
+    /**
+     * Method to set a new configuration on runtime
+     * @param array $config the configuration data
+     * @return object $this the whole instance, to support chaining
+     */
+    public function setConfig($config) {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * Method to add some new configuration values on runtime
+     * @param array $config the configuration values
+     * @return object $this the whole instance, to support chaining
+     */
+    public function addConfig($config) {
+        $this->config = array_merge($this->config, $config);
+        return $this;
+    }
 }
