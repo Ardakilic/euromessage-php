@@ -272,7 +272,7 @@ try {
 }
 ```
 
-## Setting a whole new configuration on runtime
+## Setting a Whole New Configuration on Runtime
 
 ```php 
 <?php
@@ -283,7 +283,7 @@ $euromessage->setConfig($newConfig);
 // .. Do the rest
 ```
 
-## Setting some new configuration values on runtime
+## Setting Some New Configuration Values on Runtime
 
 ```php 
 <?php
@@ -299,25 +299,28 @@ $euromessage->addConfig($newConfig);
 
 TODOs
 --------
-There's not much todo required for my personal needs, however, any pull requests will be considered and appreciated.
+There's not much stuff required for my personal needs, however, any pull requests will be considered and appreciated.
 
 Changelog
 --------
+
+### 0.1.2
+* `setConfig` and `addConfig` methods now re-initialize the HTTP Client if `endpoints.base_uri` parameter is provided.
 
 ### 0.1.1
 * `setConfig` and `addConfig` methods added to change configuration on runtime, which can also be chained.
 
 ### 0.1.0
 
-* Adding members to Data Warehouse method added
-* Querying Member ID and Demography methods added from both Member Service and Data Warehouse
-* `forceUpdate` parameter removed from `updateNotificationPreferences` method
+* Adding members to Data Warehouse method added.
+* Querying Member ID and Demography methods added from both Member Service and Data Warehouse.
+* `forceUpdate` parameter removed from `updateNotificationPreferences` method.
 
 The endpoints section at configuration parameter now holds new lines, please update accordingly.
 
 ### 0.0.1
 
-* Initial Release
+* Initial Release.
 
 License
 --------

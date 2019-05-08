@@ -21,13 +21,14 @@ class Client
     private $client;
 
     /**
-     * Client constructor.
+     * Client constructor
+     * This method sets the configuration and HTTP Client variables
      * @param array $config the configuration array
      */
     public function __construct($config)
     {
         $this->config = $config;
-        $this->client = new Guzzle(['base_uri' => $this->config['endpoints']['base_uri']]);
+        $this->setClient($config['endpoints']['base_uri']);
     }
 
     /**
@@ -476,6 +477,40 @@ class Client
     }
 
     /**
+     * Method to set a new configuration on runtime
+     * @param array $config the configuration data
+     * @return object $this the whole instance, to support chaining
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+
+        // If a new base uri parameter is provided through the configuration, we need to re-set the HTTP Client
+        if (isset($config['endpoints']['base_uri'])) {
+            $this->setClient($config['endpoints']['base_uri']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Method to add some new configuration values on runtime
+     * @param array $config the configuration values
+     * @return object $this the whole instance, to support chaining
+     */
+    public function addConfig($config)
+    {
+        $this->config = array_merge($this->config, $config);
+
+        // If a new base uri parameter is provided through the configuration, we need to re-set the HTTP Client
+        if (isset($config['endpoints']['base_uri'])) {
+            $this->setClient($config['endpoints']['base_uri']);
+        }
+
+        return $this;
+    }
+
+    /**
      * Gets the token to make requests
      * @return string the token to make further requests
      * @throws Exception the exception from the request or Guzzle Client
@@ -509,22 +544,12 @@ class Client
     }
 
     /**
-     * Method to set a new configuration on runtime
-     * @param array $config the configuration data
-     * @return object $this the whole instance, to support chaining
+     * Method to set the Guzzle HTTP Client
+     * @param string $baseUri The base uri parameter of the Euromessage API
+     * @return void
      */
-    public function setConfig($config) {
-        $this->config = $config;
-        return $this;
-    }
-
-    /**
-     * Method to add some new configuration values on runtime
-     * @param array $config the configuration values
-     * @return object $this the whole instance, to support chaining
-     */
-    public function addConfig($config) {
-        $this->config = array_merge($this->config, $config);
-        return $this;
+    private function setClient($baseUri)
+    {
+        $this->client = new Guzzle(['base_uri' => $baseUri]);
     }
 }
