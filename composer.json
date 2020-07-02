@@ -3,7 +3,7 @@
   "description": "Euromessage PHP Client",
   "type": "library",
   "require": {
-    "guzzlehttp/guzzle": "^6.3",
+    "guzzlehttp/guzzle": "^7.0",
     "ext-json": "*",
     "php": ">=5.5.0"
   },
